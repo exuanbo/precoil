@@ -1,5 +1,7 @@
 # Precoil
 
+> A minimal state management library for React. Hmm, it's like Recoil.
+
 [![npm](https://img.shields.io/npm/v/precoil?style=flat-square)](https://www.npmjs.com/package/precoil)
 
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
