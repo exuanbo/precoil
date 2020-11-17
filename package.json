@@ -1,7 +1,7 @@
 {
   "name": "precoil",
   "version": "0.0.0",
-  "description": "",
+  "description": "A minimal state management library for React. Hmm, it's like Recoil.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,15 @@
     "type": "git",
     "url": "git+https://github.com/exuanbo/precoil.git"
   },
-  "keywords": [],
+  "keywords": [
+    "react",
+    "preact",
+    "state",
+    "state management",
+    "hook",
+    "hooks",
+    "react hooks"
+  ],
   "author": "exuanbo",
   "license": "MIT",
   "bugs": {
