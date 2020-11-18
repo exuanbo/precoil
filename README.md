@@ -67,12 +67,13 @@ const DisplayInput = () => {
 ```ts
 import React, { FunctionComponent } from 'react'
 
+declare type Callback<T> = (arg: T) => void
 interface Atom<T> {
     default?: T
     symbol: symbol
 }
-declare const atom: <T extends unknown>(defaultState?: T | undefined) => Atom<T>
-declare const usePrecoilState: <T extends unknown>(atom: Atom<T>) => [T, (arg: T) => void]
+declare const atom: <T>(defaultState?: T | undefined) => Atom<T>
+declare const usePrecoilState: <T>(atom: Atom<T>) => [T, Callback<T>]
 interface Props {
     children: React.ReactNode
 }
