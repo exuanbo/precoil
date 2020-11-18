@@ -9,12 +9,12 @@ Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 ## Install
 
 ```sh
-npm install Precoil
+npm install precoil
 ```
 
 ## Usage
 
-### RecoilRoot
+### PrecoilRoot
 
 ```js
 import { PrecoilRoot } from 'precoil'
