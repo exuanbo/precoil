@@ -1,4 +1,5 @@
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'jsdom'
+  testEnvironment: 'jsdom',
+  testRegex: '(__tests__\\/.*?\\.test)\\.tsx?$'
 }
