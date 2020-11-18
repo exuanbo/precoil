@@ -4,8 +4,8 @@ import pkg from './package.json'
 
 export default [
   {
-    external: ['react', 'react-dom'],
-    input: 'src/index.tsx',
+    external: ['react'],
+    input: 'src/index.ts',
     plugins: [typescript()],
     output: [
       {
