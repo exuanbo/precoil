@@ -6,13 +6,5 @@ module.exports = mergeObj(require('ts-standardx/.eslintrc.js'), {
       version: 'detect'
     }
   },
-  ignorePatterns: ['dist'],
-  overrides: [
-    {
-      files: ['**/*.ts', '**/*.tsx'],
-      rules: {
-        '@typescript-eslint/consistent-type-assertions': 'off'
-      }
-    }
-  ]
+  ignorePatterns: ['dist']
 })

@@ -59,6 +59,11 @@ export const PrecoilRoot: FunctionComponent<Props> = <
 >({
   children
 }: Props) => {
+  /* eslint @typescript-eslint/consistent-type-assertions:
+    ['error', {
+      assertionStyle: 'as',
+      objectLiteralTypeAssertions: 'allow-as-parameter'
+    }] */
   const ref = useRef<R>({ subs: {} } as R)
 
   const subscribe = (event: K, cb: Callback<T>): void => {
