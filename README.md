@@ -69,13 +69,15 @@ import React, { FunctionComponent } from 'react'
 
 declare type Callback<T> = (arg: T) => void
 interface Atom<T> {
-    default?: T
-    symbol: symbol
+  default?: T
+  symbol: symbol
 }
+
 declare const atom: <T>(defaultState?: T | undefined) => Atom<T>
 declare const usePrecoilState: <T>(atom: Atom<T>) => [T, Callback<T>]
+
 interface Props {
-    children: React.ReactNode
+  children: React.ReactNode
 }
 declare const PrecoilRoot: FunctionComponent<Props>
 
