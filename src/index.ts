@@ -18,7 +18,6 @@ interface CustomContext<T> {
 }
 
 type Context<T> = React.Context<CustomContext<T>>
-
 type Provider<T> = React.Provider<CustomContext<T>>
 
 const context: Context<unknown> = createContext<CustomContext<unknown>>({})
