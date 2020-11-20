@@ -9,8 +9,9 @@ import React, {
 
 type SetState<T> = (data: T) => void
 
-type Subscribe<T> = (state: symbol, setState: SetState<T>) => void
-type Publish<T> = (state: symbol, data: T) => void
+// TODO Remove these `any`
+type Subscribe<T> = (state: any, setState: SetState<T>) => void
+type Publish<T> = (state: any, data: T) => void
 
 interface CustomContext<T> {
   subscribe?: Subscribe<T>
@@ -49,13 +50,11 @@ interface Props {
   children: React.ReactNode
 }
 
-type Subs<T, K extends symbol> = Record<K, Array<SetState<T>> | undefined>
+interface Ref<T, K extends symbol> {
+  subs: { [state in K]?: Array<SetState<T>> }
+}
 
-export const PrecoilRoot: FunctionComponent<Props> = <
-  T,
-  K extends symbol,
-  R extends { subs: Subs<T, K> }
->({
+export const PrecoilRoot: FunctionComponent<Props> = <T, K extends symbol>({
   children
 }: Props) => {
   /* eslint @typescript-eslint/consistent-type-assertions:
@@ -63,16 +62,16 @@ export const PrecoilRoot: FunctionComponent<Props> = <
       assertionStyle: 'as',
       objectLiteralTypeAssertions: 'allow-as-parameter'
     }] */
-  const ref = useRef<R>({ subs: {} } as R)
+  const ref = useRef<Ref<T, K>>({ subs: {} })
 
-  const subscribe = (state: K, set: SetState<T>): void => {
+  const subscribe: Subscribe<T> = (state: K, set: SetState<T>): void => {
     if (ref.current.subs[state] === undefined) {
       ref.current.subs[state] = []
     }
-    ;(ref.current.subs[state] as Array<SetState<T>>).push(set)
+    ref.current.subs[state]?.push(set)
   }
 
-  const publish = (state: K, data: T): void => {
+  const publish: Publish<T> = (state: K, data: T): void => {
     ref.current.subs[state]?.forEach(set => set(data))
   }
 
@@ -82,8 +81,8 @@ export const PrecoilRoot: FunctionComponent<Props> = <
     Provider,
     {
       value: {
-        subscribe: subscribe as Subscribe<T>,
-        publish: publish as Publish<T>
+        subscribe,
+        publish
       }
     },
     children
