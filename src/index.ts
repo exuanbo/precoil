@@ -7,10 +7,10 @@ import React, {
   useState
 } from 'react'
 
-type Callback<T> = (arg: T) => void
+type SetState<T> = (data: T) => void
 
-type Subscribe<T> = (event: symbol, callback: Callback<T>) => void
-type Publish<T> = (event: symbol, data: T) => void
+type Subscribe<T> = (state: symbol, setState: SetState<T>) => void
+type Publish<T> = (state: symbol, data: T) => void
 
 interface CustomContext<T> {
   subscribe?: Subscribe<T>
@@ -24,23 +24,23 @@ const context: Context<unknown> = createContext<CustomContext<unknown>>({})
 
 export interface Atom<T> {
   default?: T
-  symbol: symbol
+  key: symbol
 }
 
 export const atom = <T>(defaultState?: T): Atom<T> => ({
   default: defaultState,
-  symbol: Symbol('atom')
+  key: Symbol('atom')
 })
 
-export const usePrecoilState = <T>(atom: Atom<T>): [T, Callback<T>] => {
+export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
   const ctx = useContext(context as Context<T>)
   const [state, setState] = useState<T>(atom.default as T)
 
   useEffect(() => {
-    ctx.subscribe?.(atom.symbol, (data: T) => setState(data))
+    ctx.subscribe?.(atom.key, (data: T) => setState(data))
   }, [])
 
-  const set: Callback<T> = data => ctx.publish?.(atom.symbol, data)
+  const set: SetState<T> = data => ctx.publish?.(atom.key, data)
 
   return [state, set]
 }
@@ -49,7 +49,7 @@ interface Props {
   children: React.ReactNode
 }
 
-type Subs<T, K extends symbol> = Record<K, Array<Callback<T>> | undefined>
+type Subs<T, K extends symbol> = Record<K, Array<SetState<T>> | undefined>
 
 export const PrecoilRoot: FunctionComponent<Props> = <
   T,
@@ -65,11 +65,11 @@ export const PrecoilRoot: FunctionComponent<Props> = <
     }] */
   const ref = useRef<R>({ subs: {} } as R)
 
-  const subscribe = (event: K, cb: Callback<T>): void => {
+  const subscribe = (event: K, cb: SetState<T>): void => {
     if (ref.current.subs[event] === undefined) {
       ref.current.subs[event] = []
     }
-    ;(ref.current.subs[event] as Array<Callback<T>>).push(cb)
+    ;(ref.current.subs[event] as Array<SetState<T>>).push(cb)
   }
 
   const publish = (event: K, data: T): void => {
