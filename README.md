@@ -56,30 +56,27 @@ const Input = () => {
   )
 }
 
-const DisplayInput = () => {
+const UpperCaseInput = () => {
   const [text] = usePrecoilState(textState)
-  return <span>{text}</span>
+  return <span>{text.toUpperCase()}</span>
 }
 ```
 
 ## API
 
 ```ts
-import React, { FunctionComponent } from 'react'
+import React, { FunctionComponent } from "react"
 
-declare type Callback<T> = (arg: T) => void
+declare const PrecoilRoot: FunctionComponent<{ children: React.ReactNode }>
+
 interface Atom<T> {
   default?: T
-  symbol: symbol
+  key: symbol
 }
-
 declare const atom: <T>(defaultState?: T | undefined) => Atom<T>
-declare const usePrecoilState: <T>(atom: Atom<T>) => [T, Callback<T>]
 
-interface Props {
-  children: React.ReactNode
-}
-declare const PrecoilRoot: FunctionComponent<Props>
+declare type SetState<T> = (data: T) => void
+declare const usePrecoilState: <T>(atom: Atom<T>) => [T, SetState<T>]
 
 export { Atom, PrecoilRoot, atom, usePrecoilState }
 ```
