@@ -65,15 +65,15 @@ export const PrecoilRoot: FunctionComponent<Props> = <
     }] */
   const ref = useRef<R>({ subs: {} } as R)
 
-  const subscribe = (event: K, cb: SetState<T>): void => {
-    if (ref.current.subs[event] === undefined) {
-      ref.current.subs[event] = []
+  const subscribe = (state: K, set: SetState<T>): void => {
+    if (ref.current.subs[state] === undefined) {
+      ref.current.subs[state] = []
     }
-    ;(ref.current.subs[event] as Array<SetState<T>>).push(cb)
+    ;(ref.current.subs[state] as Array<SetState<T>>).push(set)
   }
 
-  const publish = (event: K, data: T): void => {
-    ref.current.subs[event]?.forEach(cb => cb(data))
+  const publish = (state: K, data: T): void => {
+    ref.current.subs[state]?.forEach(set => set(data))
   }
 
   const Provider = context.Provider as Provider<T>
