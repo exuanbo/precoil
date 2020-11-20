@@ -14,14 +14,14 @@ type Subscribe<T> = (state: any, setState: SetState<T>) => void
 type Publish<T> = (state: any, data: T) => void
 
 interface CustomContext<T> {
-  subscribe?: Subscribe<T>
-  publish?: Publish<T>
+  subscribe: Subscribe<T>
+  publish: Publish<T>
 }
 
 type Context<T> = React.Context<CustomContext<T>>
 type Provider<T> = React.Provider<CustomContext<T>>
 
-const context: Context<unknown> = createContext<CustomContext<unknown>>({})
+const context = createContext<Partial<CustomContext<unknown>>>({})
 
 export interface Atom<T> {
   default?: T
@@ -38,10 +38,10 @@ export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
   const [state, setState] = useState<T>(atom.default as T)
 
   useEffect(() => {
-    ctx.subscribe?.(atom.key, (data: T) => setState(data))
+    ctx.subscribe(atom.key, (data: T) => setState(data))
   }, [])
 
-  const set: SetState<T> = data => ctx.publish?.(atom.key, data)
+  const set: SetState<T> = data => ctx.publish(atom.key, data)
 
   return [state, set]
 }
