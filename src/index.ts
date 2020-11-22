@@ -57,11 +57,6 @@ interface Ref<T, K extends symbol> {
 export const PrecoilRoot: FunctionComponent<Props> = <T, K extends symbol>({
   children
 }: Props) => {
-  /* eslint @typescript-eslint/consistent-type-assertions:
-    ['error', {
-      assertionStyle: 'as',
-      objectLiteralTypeAssertions: 'allow-as-parameter'
-    }] */
   const ref = useRef<Ref<T, K>>({ subs: {} })
 
   const subscribe: Subscribe<T> = (state: K, set: SetState<T>): void => {
