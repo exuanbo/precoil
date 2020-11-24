@@ -9,9 +9,8 @@ import React, {
 
 type SetState<T> = (data: T) => void
 
-// TODO Remove these `any`
-type Subscribe<T> = (state: any, setState: SetState<T>) => void
-type Publish<T> = (state: any, data: T) => void
+type Subscribe<T> = (state: symbol, setState: SetState<T>) => void
+type Publish<T> = (state: symbol, data: T) => void
 
 interface CustomContext<T> {
   subscribe: Subscribe<T>
@@ -59,16 +58,16 @@ export const PrecoilRoot: FunctionComponent<Props> = <T, K extends symbol>({
 }: Props) => {
   const ref = useRef<Ref<T, K>>({ subs: {} })
 
-  const subscribe: Subscribe<T> = (state: K, set: SetState<T>): void => {
+  const subscribe = ((state: K, setState: SetState<T>): void => {
     if (ref.current.subs[state] === undefined) {
       ref.current.subs[state] = []
     }
-    ref.current.subs[state]?.push(set)
-  }
+    ref.current.subs[state]?.push(setState)
+  }) as Subscribe<T>
 
-  const publish: Publish<T> = (state: K, data: T): void => {
-    ref.current.subs[state]?.forEach(set => set(data))
-  }
+  const publish = ((state: K, data: T): void => {
+    ref.current.subs[state]?.forEach(setState => setState(data))
+  }) as Publish<T>
 
   const Provider = context.Provider as Provider<T>
 
