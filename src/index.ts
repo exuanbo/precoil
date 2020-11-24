@@ -51,7 +51,7 @@ interface Props {
 }
 
 interface Ref<T, K extends symbol> {
-  subs: { [state in K]?: Array<SetState<T>> }
+  subs: Partial<Record<K, Array<SetState<T>>>>
 }
 
 export const PrecoilRoot: FunctionComponent<Props> = <T, K extends symbol>({
