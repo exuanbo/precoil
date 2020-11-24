@@ -67,8 +67,6 @@ const UpperCaseInput = () => {
 ```ts
 import React, { FunctionComponent } from "react"
 
-declare const PrecoilRoot: FunctionComponent<{ children: React.ReactNode }>
-
 interface Atom<T> {
   default?: T
   key: symbol
@@ -77,6 +75,11 @@ declare const atom: <T>(defaultState?: T | undefined) => Atom<T>
 
 declare type SetState<T> = (data: T) => void
 declare const usePrecoilState: <T>(atom: Atom<T>) => [T, SetState<T>]
+
+interface Props {
+  children: React.ReactNode
+}
+declare const PrecoilRoot: FunctionComponent<Props>
 
 export { Atom, PrecoilRoot, atom, usePrecoilState }
 ```
