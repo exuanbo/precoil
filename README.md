@@ -3,6 +3,8 @@
 > A minimal state management library for React. Hmm, it's like Recoil.
 
 [![npm](https://img.shields.io/npm/v/precoil)](https://www.npmjs.com/package/precoil)
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/exuanbo/precoil/Node.js%20CI/main)](https://github.com/exuanbo/precoil/actions?query=workflow%3A%22Node.js+CI%22)
+[![libera manifesto](https://img.shields.io/badge/libera-manifesto-lightgrey.svg)](https://liberamanifesto.com)
 
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 
@@ -43,7 +45,7 @@ export const textState = atom<string>()
 
 ```js
 import { usePrecoilState } from 'precoil'
-import { textState } from '../index'
+import { textState } from '../atoms'
 
 const Input = () => {
   const [text, setText] = usePrecoilState(textState)
@@ -65,7 +67,7 @@ const UpperCaseInput = () => {
 ## API
 
 ```ts
-import React, { FunctionComponent } from "react"
+import React, { FunctionComponent } from 'react'
 
 interface Atom<T> {
   default?: T
@@ -81,13 +83,13 @@ interface Props {
 }
 declare const PrecoilRoot: FunctionComponent<Props>
 
-export { Atom, PrecoilRoot, atom, usePrecoilState }
+export { PrecoilRoot, atom, usePrecoilState }
 ```
 
 ## Todo
 
 - [ ] Unit testing
-- [ ] Documentation
+- [ ] `selector()`
 
 ## Credits
 
