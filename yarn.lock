@@ -4253,10 +4253,10 @@ stack-utils@^2.0.2:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-standard-engine-ts@0.3.0-3:
-  version "0.3.0-3"
-  resolved "https://registry.yarnpkg.com/standard-engine-ts/-/standard-engine-ts-0.3.0-3.tgz#2be47668bc271f331d914a3c94db269c4d1deae8"
-  integrity sha512-G2ESvnh/ddNNLoO7Sq3l/qMPBKGy9KYcAboSze5eSEUA3sMKsffH9neWZ22sW0oRPSov9tTafKxHj+qod1ZxFQ==
+standard-engine-ts@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/standard-engine-ts/-/standard-engine-ts-0.3.0.tgz#62b523ff5b69c2f3c511873c5a49e6477d26caf6"
+  integrity sha512-gQOD/OBrrgRSaECru4fQhOUr7835DRb/hKH6RUGSZdkjB4/bnDC8aIICeJ+iPoLVy2FUfPImqoCn4YrZD8sO0w==
   dependencies:
     "@types/eslint" "7.2.5"
     minimist "1.2.5"
@@ -4515,10 +4515,10 @@ ts-jest@26.4.4:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-standardx@0.5.0-2:
-  version "0.5.0-2"
-  resolved "https://registry.yarnpkg.com/ts-standardx/-/ts-standardx-0.5.0-2.tgz#7fb71fb3865bf17aa1e0c2c99ecbe6336ced0533"
-  integrity sha512-eleG+Yxwc6/0OxuDcqdeWPXOEkZWddEwkjxxbe4yCGGe3pv6kfIQsKsrNJAWS+9iTHHRVLf+QT+AxsiW4bzwgQ==
+ts-standardx@0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/ts-standardx/-/ts-standardx-0.5.1.tgz#deb6dbf31042a743d89ec2695d3da74f557b70e7"
+  integrity sha512-7Nvw+peOZke+0mjDVDtww+uCA8uSusZH1g9wbUmJJDx40YGOSrUbeMK68KXICwX57fzsJVcdCTn9bPwVlTh0FQ==
   dependencies:
     "@typescript-eslint/eslint-plugin" "4.8.2"
     "@typescript-eslint/parser" "4.8.2"
@@ -4532,7 +4532,7 @@ ts-standardx@0.5.0-2:
     eslint-plugin-promise "4.2.1"
     eslint-plugin-react "7.21.5"
     prettier "2.2.0"
-    standard-engine-ts "0.3.0-3"
+    standard-engine-ts "0.3.0"
 
 tsconfig-paths@^3.9.0:
   version "3.9.0"
