@@ -19,7 +19,7 @@ interface CustomContext {
 
 const context = createContext<Partial<CustomContext>>({})
 
-export interface Atom<T> {
+interface Atom<T> {
   default?: T
   key: symbol
 }
