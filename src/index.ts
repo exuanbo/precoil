@@ -40,9 +40,9 @@ export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
     ctx.subscribe?.(atom.key, setState)
   }, [])
 
-  const set: SetState<T> = data => ctx.publish?.(atom.key, data)
+  const publishState: SetState<T> = data => ctx.publish?.(atom.key, data)
 
-  return [state, set]
+  return [state, publishState]
 }
 
 interface Props {
