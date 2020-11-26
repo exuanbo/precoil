@@ -1,13 +1,16 @@
 import React, {
+  Dispatch,
+  SetStateAction,
+  ReactNode,
   FunctionComponent,
   createContext,
   useContext,
+  useState,
   useEffect,
-  useRef,
-  useState
+  useRef
 } from 'react'
 
-type SetState<T> = (data: T) => void
+type SetState<T> = Dispatch<SetStateAction<T>>
 
 type Subscribe = <T>(state: symbol, setState: SetState<T>) => void
 type Publish = <T>(state: symbol, data: T) => void
@@ -34,7 +37,7 @@ export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
   const [state, setState] = useState<T>(atom.default as T)
 
   useEffect(() => {
-    ctx.subscribe?.(atom.key, (data: T) => setState(data))
+    ctx.subscribe?.(atom.key, setState)
   }, [])
 
   const set: SetState<T> = data => ctx.publish?.(atom.key, data)
@@ -43,7 +46,7 @@ export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
 }
 
 interface Props {
-  children: React.ReactNode
+  children: ReactNode
 }
 
 interface Ref {
