@@ -1,0 +1,6 @@
+.cache/
+.github/
+jest.config.js
+rollup.config.js
+src/
+tsconfig.json
