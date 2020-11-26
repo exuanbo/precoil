@@ -5,9 +5,9 @@
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "directories": {
+    "test": "__tests__"
+  },
   "scripts": {
     "clean": "rimraf .cache dist",
     "dts": "tsc -d --emitDeclarationOnly --declarationDir .cache",
@@ -36,7 +36,6 @@
     "url": "https://github.com/exuanbo/precoil/issues"
   },
   "homepage": "https://github.com/exuanbo/precoil#readme",
-  "dependencies": {},
   "devDependencies": {
     "@rollup/plugin-typescript": "6.1.0",
     "@types/jest": "26.0.15",
