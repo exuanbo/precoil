@@ -32,9 +32,11 @@ export const atom = <T>(defaultState?: T): Atom<T> => ({
   key: Symbol('atom')
 })
 
-export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
+export const usePrecoilState = <T>(
+  atom: Atom<T>
+): [T | undefined, SetState<T>] => {
   const ctx = useContext(context)
-  const [state, setState] = useState<T>(atom.default as T)
+  const [state, setState] = useState<T | undefined>(atom.default)
 
   useEffect(() => {
     ctx.subscribe?.(atom.key, setState)
