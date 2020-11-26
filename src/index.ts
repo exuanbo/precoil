@@ -9,18 +9,15 @@ import React, {
 
 type SetState<T> = (data: T) => void
 
-type Subscribe<T> = (state: symbol, setState: SetState<T>) => void
-type Publish<T> = (state: symbol, data: T) => void
+type Subscribe = <T>(state: symbol, setState: SetState<T>) => void
+type Publish = <T>(state: symbol, data: T) => void
 
-interface CustomContext<T> {
-  subscribe: Subscribe<T>
-  publish: Publish<T>
+interface CustomContext {
+  subscribe: Subscribe
+  publish: Publish
 }
 
-type Context<T> = React.Context<CustomContext<T>>
-type Provider<T> = React.Provider<CustomContext<T>>
-
-const context = createContext<Partial<CustomContext<unknown>>>({})
+const context = createContext<Partial<CustomContext>>({})
 
 export interface Atom<T> {
   default?: T
@@ -33,14 +30,14 @@ export const atom = <T>(defaultState?: T): Atom<T> => ({
 })
 
 export const usePrecoilState = <T>(atom: Atom<T>): [T, SetState<T>] => {
-  const ctx = useContext(context as Context<T>)
+  const ctx = useContext(context)
   const [state, setState] = useState<T>(atom.default as T)
 
   useEffect(() => {
-    ctx.subscribe(atom.key, (data: T) => setState(data))
+    ctx.subscribe?.(atom.key, (data: T) => setState(data))
   }, [])
 
-  const set: SetState<T> = data => ctx.publish(atom.key, data)
+  const set: SetState<T> = data => ctx.publish?.(atom.key, data)
 
   return [state, set]
 }
@@ -49,30 +46,27 @@ interface Props {
   children: React.ReactNode
 }
 
-interface Ref<T, K extends symbol> {
-  subs: Partial<Record<K, Array<SetState<T>>>>
+interface Ref {
+  subs: Map<symbol, Array<SetState<any>> | undefined>
 }
 
-export const PrecoilRoot: FunctionComponent<Props> = <T, K extends symbol>({
-  children
-}: Props) => {
-  const ref = useRef<Ref<T, K>>({ subs: {} })
+export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
+  const ref = useRef<Ref>({ subs: new Map() })
 
-  const subscribe = ((state: K, setState: SetState<T>): void => {
-    if (ref.current.subs[state] === undefined) {
-      ref.current.subs[state] = []
-    }
-    ref.current.subs[state]?.push(setState)
-  }) as Subscribe<T>
+  const getCurrentSubs = (): Ref['subs'] => ref.current.subs
 
-  const publish = ((state: K, data: T): void => {
-    ref.current.subs[state]?.forEach(setState => setState(data))
-  }) as Publish<T>
+  const subscribe = <T>(state: symbol, setState: SetState<T>): void => {
+    const subs = getCurrentSubs()
+    subs.set(state, [...(subs.get(state) ?? []), setState])
+  }
 
-  const Provider = context.Provider as Provider<T>
+  const publish = <T>(state: symbol, data: T): void => {
+    const subs = getCurrentSubs()
+    subs.get(state)?.forEach(setState => setState(data))
+  }
 
   return React.createElement(
-    Provider,
+    context.Provider,
     {
       value: {
         subscribe,
