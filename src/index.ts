@@ -1,16 +1,13 @@
 import React, {
-  Dispatch,
-  SetStateAction,
-  ReactNode,
   FunctionComponent,
-  createContext,
+  ReactNode,
   useContext,
   useState,
   useEffect,
   useRef
 } from 'react'
 
-type SetState<T> = Dispatch<SetStateAction<T>>
+type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 type Subscribe = <T>(state: symbol, setState: SetState<T>) => void
 type Publish = <T>(state: symbol, data: T) => void
@@ -20,7 +17,7 @@ interface CustomContext {
   publish: Publish
 }
 
-const context = createContext<Partial<CustomContext>>({})
+const context = React.createContext<Partial<CustomContext>>({})
 
 interface Atom<T> {
   default?: T
