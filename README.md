@@ -70,14 +70,17 @@ const UpperCaseInput = () => {
 import React, { FunctionComponent, ReactNode } from 'react'
 
 interface Atom<T> {
-  default?: T
+  default: T
   key: symbol
 }
-declare const atom: <T>(defaultState?: T | undefined) => Atom<T>
+declare function atom<T>(defaultState: T): Atom<T>
+declare function atom<T>(): Atom<T | undefined>
 
-declare const usePrecoilState: <T>(
-  atom: Atom<T>
-) => [T | undefined, React.Dispatch<React.SetStateAction<T>>]
+declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
+declare function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>]
+declare function usePrecoilState<T>(
+  atom: Atom<T | undefined>
+): [T | undefined, SetState<T | undefined>]
 
 interface Props {
   children: ReactNode
