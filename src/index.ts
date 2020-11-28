@@ -20,20 +20,28 @@ interface CustomContext {
 const context = React.createContext<Partial<CustomContext>>({})
 
 interface Atom<T> {
-  default?: T
+  default: T
   key: symbol
 }
 
-export const atom = <T>(defaultState?: T): Atom<T> => ({
-  default: defaultState,
-  key: Symbol('atom')
-})
+export function atom<T>(defaultState: T): Atom<T>
+export function atom<T>(): Atom<T | undefined>
 
-export const usePrecoilState = <T>(
-  atom: Atom<T>
-): [T | undefined, SetState<T>] => {
+export function atom<T>(defaultState?: T): Atom<T | undefined> {
+  return {
+    default: defaultState,
+    key: Symbol('atom')
+  }
+}
+
+export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>]
+export function usePrecoilState<T>(
+  atom: Atom<T | undefined>
+): [T | undefined, SetState<T | undefined>]
+
+export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>] {
   const ctx = useContext(context)
-  const [state, setState] = useState<T | undefined>(atom.default)
+  const [state, setState] = useState<T>(atom.default)
 
   useEffect(() => {
     ctx.subscribe?.(atom.key, setState)
