@@ -57,7 +57,7 @@ interface Props {
 }
 
 interface Ref {
-  subs: Map<symbol, Array<SetState<any>> | undefined>
+  subs: Map<symbol, Set<SetState<any>> | undefined>
 }
 
 export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
@@ -67,7 +67,12 @@ export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
 
   const subscribe = <T>(state: symbol, setState: SetState<T>): void => {
     const subs = getCurrentSubs()
-    subs.set(state, [...(subs.get(state) ?? []), setState])
+    const data = subs.get(state)
+    if (data === undefined) {
+      subs.set(state, new Set([setState]))
+      return
+    }
+    data.add(setState)
   }
 
   const publish = <T>(state: symbol, data: T): void => {
