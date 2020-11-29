@@ -92,8 +92,7 @@ export { PrecoilRoot, atom, usePrecoilState }
 
 ## Todo
 
-- [ ] Unit testing
-- [ ] `selector()`
+- [ ] Documentation
 
 ## Credits
 
