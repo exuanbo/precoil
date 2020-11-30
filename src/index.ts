@@ -44,10 +44,10 @@ export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>] {
   const [state, setState] = useState<T>(atom.default)
 
   useEffect(() => {
-    ctx.subscribe?.(atom.key, setState)
+    ctx.subscribe!(atom.key, setState)
   }, [])
 
-  const publishState: SetState<T> = data => ctx.publish?.(atom.key, data)
+  const publishState: SetState<T> = data => ctx.publish!(atom.key, data)
 
   return [state, publishState]
 }
@@ -77,7 +77,7 @@ export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
 
   const publish = <T>(state: symbol, data: T): void => {
     const subs = getCurrentSubs()
-    subs.get(state)?.forEach(setState => setState(data))
+    subs.get(state)!.forEach(setState => setState(data))
   }
 
   return React.createElement(
