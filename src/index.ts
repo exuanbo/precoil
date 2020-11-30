@@ -56,14 +56,12 @@ interface Props {
   children: ReactNode
 }
 
-interface Ref {
-  subs: Map<symbol, Array<SetState<any>> | undefined>
-}
+type Subs = Map<symbol, Array<SetState<any>> | undefined>
 
 export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
-  const ref = useRef<Ref>({ subs: new Map() })
+  const ref = useRef<Subs>(new Map())
 
-  const getCurrentSubs = (): Ref['subs'] => ref.current.subs
+  const getCurrentSubs = (): Subs => ref.current
 
   const subscribe = <T>(state: symbol, setState: SetState<T>): void => {
     const subs = getCurrentSubs()
