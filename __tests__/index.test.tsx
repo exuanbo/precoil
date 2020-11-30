@@ -9,13 +9,11 @@ const inputWithDefault = atom('I am a default value')
 const Input: FunctionComponent = () => {
   const [value, setValue] = usePrecoilState(input)
   return (
-    <>
-      <input
-        aria-label="input"
-        value={value ?? ''}
-        onChange={e => setValue(e.currentTarget.value)}
-      />
-    </>
+    <input
+      aria-label="input"
+      value={value ?? ''}
+      onChange={e => setValue(e.currentTarget.value)}
+    />
   )
 }
 
@@ -32,13 +30,11 @@ const UpperCaseInput: FunctionComponent = () => {
 const InputWithDefault: FunctionComponent = () => {
   const [value, setValue] = usePrecoilState(inputWithDefault)
   return (
-    <>
-      <input
-        aria-label="input-with-default"
-        value={value}
-        onChange={e => setValue(e.currentTarget.value)}
-      />
-    </>
+    <input
+      aria-label="input-with-default"
+      value={value}
+      onChange={e => setValue(e.currentTarget.value)}
+    />
   )
 }
 
