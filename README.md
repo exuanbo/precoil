@@ -23,7 +23,8 @@ import { PrecoilRoot } from 'precoil'
 
 const App = () => (
   <PrecoilRoot>
-    <TheRestOfYourApp />
+    <Input />
+    <UpperCaseInput />
   </PrecoilRoot>
 )
 ```
@@ -39,6 +40,7 @@ export const textStateWithDefault = atom('')
 
 ```ts
 export const textState = atom<string>()
+// textState: string | undefined
 ```
 
 ### usePrecoilState
@@ -50,17 +52,16 @@ import { textState } from '../atoms'
 const Input = () => {
   const [text, setText] = usePrecoilState(textState)
   return (
-    <>
-      <input
-        onChange={e => setText(e.target.value)}
-        value={text} />
-    </>
+    <input
+      value={text || ''}
+      onChange={e => setValue(e.currentTarget.value)}
+    />
   )
 }
 
 const UpperCaseInput = () => {
   const [text] = usePrecoilState(textState)
-  return <span>{text.toUpperCase()}</span>
+  return <p>Uppercase: {text && text.toUpperCase() || ''}</p>
 }
 ```
 
