@@ -3803,10 +3803,10 @@ prettier-linter-helpers@^1.0.0:
   dependencies:
     fast-diff "^1.1.2"
 
-prettier@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.0.tgz#8a03c7777883b29b37fb2c4348c66a78e980418b"
-  integrity sha512-yYerpkvseM4iKD/BXLYUkQV5aKt4tQPqaGW6EsZjzyu0r7sVZZNPJW4Y8MyKmicp6t42XUPcBVA+H6sB3gqndw==
+prettier@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
+  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
 
 pretty-format@^26.0.0, pretty-format@^26.6.2:
   version "26.6.2"
@@ -4090,10 +4090,10 @@ rollup-plugin-dts@2.0.0:
   optionalDependencies:
     "@babel/code-frame" "^7.10.4"
 
-rollup@2.33.3:
-  version "2.33.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.33.3.tgz#ae72ce31f992b09a580072951bfea76e9df17342"
-  integrity sha512-RpayhPTe4Gu/uFGCmk7Gp5Z9Qic2VsqZ040G+KZZvsZYdcuWaJg678JeDJJvJeEQXminu24a2au+y92CUWVd+w==
+rollup@2.34.0:
+  version "2.34.0"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.34.0.tgz#ecc7f1d4ce2cb88bb51bec2f56b984f3c35b8271"
+  integrity sha512-dW5iLvttZzdVehjEuNJ1bWvuMEJjOWGmnuFS82WeKHTGXDkRHQeq/ExdifkSyJv9dLcR86ysKRmrIDyR6O0X8g==
   optionalDependencies:
     fsevents "~2.1.2"
 
@@ -4392,10 +4392,10 @@ stack-utils@^2.0.2:
   dependencies:
     escape-string-regexp "^2.0.0"
 
-standard-engine-ts@0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/standard-engine-ts/-/standard-engine-ts-0.3.0.tgz#62b523ff5b69c2f3c511873c5a49e6477d26caf6"
-  integrity sha512-gQOD/OBrrgRSaECru4fQhOUr7835DRb/hKH6RUGSZdkjB4/bnDC8aIICeJ+iPoLVy2FUfPImqoCn4YrZD8sO0w==
+standard-engine-ts@0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/standard-engine-ts/-/standard-engine-ts-0.3.1.tgz#4179d49b74d5942011824273dbb47fe1924714d7"
+  integrity sha512-wU1wagMDjKTUSAJ/5q+pQoAwKSspbhCzsN4Q3GRc0k4pgUH61PnY4efAxo2U9jqQIEuNMZWiia2kNTVwz4HvVg==
   dependencies:
     "@types/eslint" "7.2.5"
     minimist "1.2.5"
@@ -4661,10 +4661,10 @@ ts-jest@26.4.4:
     semver "7.x"
     yargs-parser "20.x"
 
-ts-standardx@0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/ts-standardx/-/ts-standardx-0.5.1.tgz#deb6dbf31042a743d89ec2695d3da74f557b70e7"
-  integrity sha512-7Nvw+peOZke+0mjDVDtww+uCA8uSusZH1g9wbUmJJDx40YGOSrUbeMK68KXICwX57fzsJVcdCTn9bPwVlTh0FQ==
+ts-standardx@0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/ts-standardx/-/ts-standardx-0.5.2.tgz#bcb049892c7c65cd0375dc52a6b8f0d5be0f0ba0"
+  integrity sha512-FXPeFll9jKpKhdVt864lnRPtfFC3yvuvXr0LpThcuwM5TqLBOihC5Xcke9e6zqVsJdgyhWuFai+cNNfb2q2zFw==
   dependencies:
     "@typescript-eslint/eslint-plugin" "4.8.2"
     "@typescript-eslint/parser" "4.8.2"
@@ -4677,8 +4677,8 @@ ts-standardx@0.5.1:
     eslint-plugin-prettier "3.1.4"
     eslint-plugin-promise "4.2.1"
     eslint-plugin-react "7.21.5"
-    prettier "2.2.0"
-    standard-engine-ts "0.3.0"
+    prettier "2.2.1"
+    standard-engine-ts "0.3.1"
 
 tsconfig-paths@^3.9.0:
   version "3.9.0"
