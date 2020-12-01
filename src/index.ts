@@ -50,12 +50,12 @@ interface Atom<T> {
   key: symbol
 }
 
-export function atom<T>(defaultState: T): Atom<T>
+export function atom<T>(defaultValue: T): Atom<T>
 export function atom<T>(): Atom<T | undefined>
 
-export function atom<T>(defaultState?: T): Atom<T | undefined> {
+export function atom<T>(defaultValue?: T): Atom<T | undefined> {
   return {
-    default: defaultState,
+    default: defaultValue,
     key: Symbol('atom')
   }
 }
