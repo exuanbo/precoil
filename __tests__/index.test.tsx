@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react'
 import { render as rtlRender, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { PrecoilRoot, atom, usePrecoilState } from '../src/index'
+import { atom, usePrecoilState } from '../src/index'
 
 const input = atom<string>()
 const inputWithDefault = atom('I am a default value')
@@ -39,12 +39,12 @@ const InputWithDefault: FunctionComponent = () => {
 }
 
 const App: FunctionComponent = () => (
-  <PrecoilRoot>
+  <>
     <Input />
     <MirrorInput />
     <UpperCaseInput />
     <InputWithDefault />
-  </PrecoilRoot>
+  </>
 )
 
 interface Setup {

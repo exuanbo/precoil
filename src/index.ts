@@ -1,24 +1,47 @@
-import React, {
-  FunctionComponent,
-  ReactNode,
-  useContext,
-  useState,
-  useEffect,
-  useRef
-} from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
-type Subscribe = <T>(state: symbol, setState: SetState<T>) => void
+type Actions = Set<SetState<any>>
+type Subs = Map<symbol, Actions | undefined>
+
 type Unsubscribe = () => void
+type Subscribe = <T>(state: symbol, setState: SetState<T>) => Unsubscribe
 type Publish = <T>(state: symbol, data: T) => void
 
-interface CustomContext {
+interface Precoil {
+  readonly _subs: Subs
   subscribe: Subscribe
   publish: Publish
 }
 
-const context = React.createContext<Partial<CustomContext>>({})
+const precoil: Precoil = {
+  _subs: new Map(),
+
+  subscribe<T>(state: symbol, setState: SetState<T>) {
+    const { _subs: subs } = this
+    const getActions = (): Actions | undefined => subs.get(state)
+    const actions = getActions()
+    if (actions === undefined) {
+      subs.set(state, new Set([setState]))
+    } else {
+      actions.add(setState)
+    }
+    return () => {
+      const curActions = getActions()
+      curActions!.delete(setState)
+      if (curActions!.size === 0) {
+        subs.delete(state)
+      }
+    }
+  },
+
+  publish<T>(state: symbol, data: T) {
+    this._subs.get(state)!.forEach(setState => setState(data))
+  }
+}
+
+const precoilContext = React.createContext(precoil)
 
 interface Atom<T> {
   default: T
@@ -41,59 +64,14 @@ export function usePrecoilState<T>(
 ): [T | undefined, SetState<T | undefined>]
 
 export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>] {
-  const ctx = useContext(context)
+  const ctx = useContext(precoilContext)
   const [state, setState] = useState<T>(atom.default)
 
-  useEffect(() => ctx.subscribe!(atom.key, setState), [])
+  useEffect(() => ctx.subscribe(atom.key, setState), [])
 
   const publishState: SetState<T> = data => {
-    ctx.publish!(atom.key, data)
+    ctx.publish(atom.key, data)
   }
 
   return [state, publishState]
-}
-
-interface Props {
-  children: ReactNode
-}
-
-type Actions = Set<SetState<any>>
-type Subs = Map<symbol, Actions | undefined>
-
-export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
-  const ref = useRef<Subs>(new Map())
-
-  const getCurrentSubs = (): Subs => ref.current
-
-  const subscribe = <T>(state: symbol, setState: SetState<T>): Unsubscribe => {
-    const subs = getCurrentSubs()
-    const getActions = (): Actions | undefined => subs.get(state)
-    const actions = getActions()
-    if (actions === undefined) {
-      subs.set(state, new Set([setState]))
-      return () => {
-        getActions()!.delete(setState)
-      }
-    }
-    actions.add(setState)
-    return () => {
-      actions.delete(setState)
-    }
-  }
-
-  const publish = <T>(state: symbol, data: T): void => {
-    const subs = getCurrentSubs()
-    subs.get(state)!.forEach(setState => setState(data))
-  }
-
-  return React.createElement(
-    context.Provider,
-    {
-      value: {
-        subscribe,
-        publish
-      }
-    },
-    children
-  )
 }
