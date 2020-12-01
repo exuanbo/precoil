@@ -10,6 +10,7 @@ import React, {
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 type Subscribe = <T>(state: symbol, setState: SetState<T>) => void
+type Unsubscribe = () => void
 type Publish = <T>(state: symbol, data: T) => void
 
 interface CustomContext {
@@ -43,11 +44,11 @@ export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>] {
   const ctx = useContext(context)
   const [state, setState] = useState<T>(atom.default)
 
-  useEffect(() => {
-    ctx.subscribe!(atom.key, setState)
-  }, [])
+  useEffect(() => ctx.subscribe!(atom.key, setState), [])
 
-  const publishState: SetState<T> = data => ctx.publish!(atom.key, data)
+  const publishState: SetState<T> = data => {
+    ctx.publish!(atom.key, data)
+  }
 
   return [state, publishState]
 }
@@ -56,16 +57,28 @@ interface Props {
   children: ReactNode
 }
 
-type Subs = Map<symbol, Array<SetState<any>> | undefined>
+type Actions = Set<SetState<any>>
+type Subs = Map<symbol, Actions | undefined>
 
 export const PrecoilRoot: FunctionComponent<Props> = ({ children }: Props) => {
   const ref = useRef<Subs>(new Map())
 
   const getCurrentSubs = (): Subs => ref.current
 
-  const subscribe = <T>(state: symbol, setState: SetState<T>): void => {
+  const subscribe = <T>(state: symbol, setState: SetState<T>): Unsubscribe => {
     const subs = getCurrentSubs()
-    subs.set(state, [...(subs.get(state) ?? []), setState])
+    const getActions = (): Actions | undefined => subs.get(state)
+    const actions = getActions()
+    if (actions === undefined) {
+      subs.set(state, new Set([setState]))
+      return () => {
+        getActions()!.delete(setState)
+      }
+    }
+    actions.add(setState)
+    return () => {
+      actions.delete(setState)
+    }
   }
 
   const publish = <T>(state: symbol, data: T): void => {
