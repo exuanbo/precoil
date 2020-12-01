@@ -1,13 +1,13 @@
 import React, { FunctionComponent } from 'react'
 import { render as rtlRender, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { atom, usePrecoilState } from '../src/index'
+import { atom, useAtom } from '../src/index'
 
 const input = atom<string>()
 const inputWithDefault = atom('I am a default value')
 
 const Input: FunctionComponent = () => {
-  const [value, setValue] = usePrecoilState(input)
+  const [value, setValue] = useAtom(input)
   return (
     <input
       aria-label="input"
@@ -18,17 +18,17 @@ const Input: FunctionComponent = () => {
 }
 
 const MirrorInput: FunctionComponent = () => {
-  const [value] = usePrecoilState(input)
+  const [value] = useAtom(input)
   return <span data-testid="mirror-input">{value ?? ''}</span>
 }
 
 const UpperCaseInput: FunctionComponent = () => {
-  const [value] = usePrecoilState(input)
+  const [value] = useAtom(input)
   return <span data-testid="uppercase-input">{value?.toUpperCase() ?? ''}</span>
 }
 
 const InputWithDefault: FunctionComponent = () => {
-  const [value, setValue] = usePrecoilState(inputWithDefault)
+  const [value, setValue] = useAtom(inputWithDefault)
   return (
     <input
       aria-label="input-with-default"

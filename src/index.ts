@@ -22,11 +22,13 @@ const precoil: Precoil = {
     const { _subs: subs } = this
     const getActions = (): Actions | undefined => subs.get(state)
     const actions = getActions()
+
     if (actions === undefined) {
       subs.set(state, new Set([setState]))
     } else {
       actions.add(setState)
     }
+
     return () => {
       const curActions = getActions()
       curActions!.delete(setState)
@@ -58,12 +60,12 @@ export function atom<T>(defaultState?: T): Atom<T | undefined> {
   }
 }
 
-export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>]
-export function usePrecoilState<T>(
+export function useAtom<T>(atom: Atom<T>): [T, SetState<T>]
+export function useAtom<T>(
   atom: Atom<T | undefined>
 ): [T | undefined, SetState<T | undefined>]
 
-export function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>] {
+export function useAtom<T>(atom: Atom<T>): [T, SetState<T>] {
   const ctx = useContext(precoilContext)
   const [state, setState] = useState<T>(atom.default)
 
