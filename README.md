@@ -8,6 +8,11 @@
 [![Codecov branch](https://img.shields.io/codecov/c/gh/exuanbo/precoil/main?token=8GJEGUF449)](https://codecov.io/gh/exuanbo/precoil/)
 [![libera manifesto](https://img.shields.io/badge/libera-manifesto-lightgrey.svg)](https://liberamanifesto.com)
 
+## Features
+
+- Shares state between components without rerendering the entire tree.
+- Doesn't require wrapping your app in context provider.
+
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 
 ## Install
@@ -17,19 +22,6 @@ npm install precoil
 ```
 
 ## Usage
-
-### PrecoilRoot
-
-```js
-import { PrecoilRoot } from 'precoil'
-
-const App = () => (
-  <PrecoilRoot>
-    <Input />
-    <UpperCaseInput />
-  </PrecoilRoot>
-)
-```
 
 ### atom
 
@@ -45,14 +37,14 @@ export const textState = atom<string>()
 // textState: string | undefined
 ```
 
-### usePrecoilState
+### useAtom
 
 ```js
-import { usePrecoilState } from 'precoil'
+import { useAtom } from 'precoil'
 import { textState } from '../atoms'
 
 const Input = () => {
-  const [text, setText] = usePrecoilState(textState)
+  const [text, setText] = useAtom(textState)
   return (
     <input
       value={text || ''}
@@ -62,7 +54,7 @@ const Input = () => {
 }
 
 const UpperCaseInput = () => {
-  const [text] = usePrecoilState(textState)
+  const [text] = useAtom(textState)
   return <p>Uppercase: {text && text.toUpperCase() || ''}</p>
 }
 ```
@@ -70,37 +62,28 @@ const UpperCaseInput = () => {
 ## API
 
 ```ts
-import React, { FunctionComponent, ReactNode } from 'react'
+import React from 'react'
 
 interface Atom<T> {
   default: T
   key: symbol
 }
-declare function atom<T>(defaultState: T): Atom<T>
+declare function atom<T>(defaultValue: T): Atom<T>
 declare function atom<T>(): Atom<T | undefined>
 
 declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
-declare function usePrecoilState<T>(atom: Atom<T>): [T, SetState<T>]
-declare function usePrecoilState<T>(
+
+declare function useAtom<T>(atom: Atom<T>): [T, SetState<T>]
+declare function useAtom<T>(
   atom: Atom<T | undefined>
 ): [T | undefined, SetState<T | undefined>]
 
-interface Props {
-  children: ReactNode
-}
-declare const PrecoilRoot: FunctionComponent<Props>
-
-export { PrecoilRoot, atom, usePrecoilState }
+export { atom, useAtom }
 ```
 
 ## Todo
 
 - [ ] Documentation
-
-## Credits
-
-- [Recoil](https://recoiljs.org/)
-- [getroomservice/use-anywhere](https://github.com/getroomservice/use-anywhere).
 
 ## License
 
