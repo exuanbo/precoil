@@ -10,8 +10,9 @@
 
 ## Features
 
-- Shares state between components without rerendering the entire tree.
+- A global `useState`, but without rerendering the entire tree.
 - Doesn't require wrapping your app in context provider.
+- Minified size under 1kb.
 
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 
