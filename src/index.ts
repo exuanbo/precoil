@@ -37,7 +37,7 @@ interface Atom<T> {
 }
 
 export function atom<T>(initialValue: T): Atom<T>
-export function atom<T>(initialValue?: T | undefined): Atom<T | undefined>
+export function atom<T>(initialValue?: T): Atom<T | undefined>
 
 export function atom<T>(initialValue: T): Atom<T> {
   return {
