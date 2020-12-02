@@ -1,61 +1,47 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 type Actions = Set<SetState<any>>
-type Subs = Map<symbol, Actions | undefined>
+type Subscriptions = Map<symbol, Actions | undefined>
 
-type Unsubscribe = () => void
-type Subscribe = <T>(state: symbol, setState: SetState<T>) => Unsubscribe
-type Publish = <T>(state: symbol, data: T) => void
+const subscriptions: Subscriptions = new Map()
 
-interface Precoil {
-  readonly _subs: Subs
-  subscribe: Subscribe
-  publish: Publish
+const getActions = (key: symbol): Actions => {
+  if (!subscriptions.has(key)) {
+    subscriptions.set(key, new Set())
+  }
+  return subscriptions.get(key) as Actions
 }
 
-const precoil: Precoil = {
-  _subs: new Map(),
+const subscribe = <T>(key: symbol, setState: SetState<T>): (() => void) => {
+  const getCurrentActions = (): Actions => getActions(key)
+  getCurrentActions().add(setState)
 
-  subscribe<T>(state: symbol, setState: SetState<T>) {
-    const { _subs: subs } = this
-    const getActions = (): Actions | undefined => subs.get(state)
-    const actions = getActions()
-
-    if (actions === undefined) {
-      subs.set(state, new Set([setState]))
-    } else {
-      actions.add(setState)
+  return () => {
+    const actions = getCurrentActions()
+    actions.delete(setState)
+    if (actions.size === 0) {
+      subscriptions.delete(key)
     }
-
-    return () => {
-      const curActions = getActions()
-      curActions!.delete(setState)
-      if (curActions!.size === 0) {
-        subs.delete(state)
-      }
-    }
-  },
-
-  publish<T>(state: symbol, data: T) {
-    this._subs.get(state)!.forEach(setState => setState(data))
   }
 }
 
-const precoilContext = React.createContext(precoil)
+const publish = <T>(key: symbol, data: T): void => {
+  getActions(key).forEach(setState => setState(data))
+}
 
 interface Atom<T> {
-  default: T
+  initialValue: T
   key: symbol
 }
 
-export function atom<T>(defaultValue: T): Atom<T>
-export function atom<T>(): Atom<T | undefined>
+export function atom<T>(initialValue: T): Atom<T>
+export function atom<T>(initialValue?: T | undefined): Atom<T | undefined>
 
-export function atom<T>(defaultValue?: T): Atom<T | undefined> {
+export function atom<T>(initialValue: T): Atom<T> {
   return {
-    default: defaultValue,
+    initialValue,
     key: Symbol('atom')
   }
 }
@@ -66,13 +52,13 @@ export function useAtom<T>(
 ): [T | undefined, SetState<T | undefined>]
 
 export function useAtom<T>(atom: Atom<T>): [T, SetState<T>] {
-  const ctx = useContext(precoilContext)
-  const [state, setState] = useState<T>(atom.default)
+  const { initialValue, key } = atom
+  const [state, setState] = useState<T>(initialValue)
 
-  useEffect(() => ctx.subscribe(atom.key, setState), [])
+  useEffect(() => subscribe(key, setState), [])
 
   const publishState: SetState<T> = data => {
-    ctx.publish(atom.key, data)
+    publish(key, data)
   }
 
   return [state, publishState]
