@@ -65,11 +65,11 @@ const UpperCaseInput = () => {
 import React from 'react'
 
 interface Atom<T> {
-  default: T
+  initialValue: T
   key: symbol
 }
-declare function atom<T>(defaultValue: T): Atom<T>
-declare function atom<T>(): Atom<T | undefined>
+declare function atom<T>(initialValue: T): Atom<T>
+declare function atom<T>(initialValue?: T): Atom<T | undefined>
 
 declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
