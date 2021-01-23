@@ -47,7 +47,7 @@
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "rollup": "2.34.0",
-    "rollup-plugin-dts": "2.0.0",
+    "rollup-plugin-dts": "2.0.1",
     "ts-jest": "26.4.4",
     "ts-standardx": "0.5.2",
     "tslib": "2.0.3",
