@@ -38,7 +38,7 @@
   "homepage": "https://github.com/exuanbo/precoil#readme",
   "devDependencies": {
     "@rollup/plugin-typescript": "8.1.1",
-    "@testing-library/jest-dom": "5.11.6",
+    "@testing-library/jest-dom": "5.11.9",
     "@testing-library/react": "11.2.5",
     "@types/jest": "26.0.19",
     "@types/react": "17.0.0",
