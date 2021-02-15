@@ -12,7 +12,7 @@
 
 - A global `useState`, but without rerendering the entire tree.
 - Doesn't require wrapping your app in context provider.
-- Minified size under 1kb.
+- Bundle size under 1kb.
 
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 
@@ -48,7 +48,7 @@ const Input = () => {
   const [text, setText] = useAtom(textState)
   return (
     <input
-      value={text || ''}
+      value={text ?? ''}
       onChange={e => setValue(e.currentTarget.value)}
     />
   )
@@ -65,14 +65,16 @@ const UpperCaseInput = () => {
 ```ts
 import React from 'react'
 
+declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
+declare type Subscription<T> = Set<SetState<T>>
+
 interface Atom<T> {
-  initialValue: T
-  key: symbol
+  value: T
+  subscription: Subscription<T>
 }
+
 declare function atom<T>(initialValue: T): Atom<T>
 declare function atom<T>(initialValue?: T): Atom<T | undefined>
-
-declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 
 declare function useAtom<T>(atom: Atom<T>): [T, SetState<T>]
 declare function useAtom<T>(
@@ -84,7 +86,7 @@ export { atom, useAtom }
 
 ## Todo
 
-- [ ] Documentation
+- [ ] Document
 
 ## License
 
