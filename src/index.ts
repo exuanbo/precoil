@@ -1,39 +1,11 @@
 import React, { useState, useEffect } from 'react'
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
-
-type Actions = Set<SetState<any>>
-type Subscriptions = Map<symbol, Actions | undefined>
-
-const subscriptions: Subscriptions = new Map()
-
-const getActions = (key: symbol): Actions => {
-  if (!subscriptions.has(key)) {
-    subscriptions.set(key, new Set())
-  }
-  return subscriptions.get(key) as Actions
-}
-
-const subscribe = <T>(key: symbol, setState: SetState<T>): (() => void) => {
-  const getCurrentActions = (): Actions => getActions(key)
-  getCurrentActions().add(setState)
-
-  return () => {
-    const actions = getCurrentActions()
-    actions.delete(setState)
-    if (actions.size === 0) {
-      subscriptions.delete(key)
-    }
-  }
-}
-
-const publish = <T>(key: symbol, data: T): void => {
-  getActions(key).forEach(setState => setState(data))
-}
+type Subscription<T> = Set<SetState<T>>
 
 interface Atom<T> {
-  initialValue: T
-  key: symbol
+  value: T
+  subscription: Subscription<T>
 }
 
 export function atom<T>(initialValue: T): Atom<T>
@@ -41,9 +13,34 @@ export function atom<T>(initialValue?: T): Atom<T | undefined>
 
 export function atom<T>(initialValue: T): Atom<T> {
   return {
-    initialValue,
-    key: Symbol('atom')
+    value: initialValue,
+    subscription: new Set()
   }
+}
+
+const subscribe = <T>(
+  setState: SetState<T>,
+  subscription: Subscription<T>
+): (() => void) => {
+  subscription.add(setState)
+
+  return () => {
+    subscription.delete(setState)
+  }
+}
+
+const publish = <T>(data: React.SetStateAction<T>, atom: Atom<T>): void => {
+  const { value, subscription } = atom
+
+  subscription.forEach(setState => {
+    setState(data)
+  })
+
+  if (data instanceof Function) {
+    atom.value = data(value)
+    return
+  }
+  atom.value = data
 }
 
 export function useAtom<T>(atom: Atom<T>): [T, SetState<T>]
@@ -52,13 +49,13 @@ export function useAtom<T>(
 ): [T | undefined, SetState<T | undefined>]
 
 export function useAtom<T>(atom: Atom<T>): [T, SetState<T>] {
-  const { initialValue, key } = atom
-  const [state, setState] = useState<T>(initialValue)
+  const { value, subscription } = atom
+  const [state, setState] = useState<T>(value)
 
-  useEffect(() => subscribe(key, setState), [])
+  useEffect(() => subscribe(setState, subscription), [])
 
   const publishState: SetState<T> = data => {
-    publish(key, data)
+    publish(data, atom)
   }
 
   return [state, publishState]
