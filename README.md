@@ -1,6 +1,6 @@
 # Precoil
 
-> A minimal state management library for React. Hmm, it's like Recoil.
+> A minimal state management library for React.
 
 [![npm](https://img.shields.io/npm/v/precoil)](https://www.npmjs.com/package/precoil)
 [![npm bundle size](https://img.shields.io/bundlephobia/min/precoil?label=bundle%20size)](https://bundlephobia.com/result?p=precoil)
@@ -10,9 +10,9 @@
 
 ## Features
 
-- A global `useState`, but without rerendering the entire tree.
-- Doesn't require wrapping your app in context provider.
-- Bundle size under 1kb.
+- Minimalistic API based on hooks
+- No context provider needed
+- Small bundle size
 
 Try it on [CodeSandbox](https://codesandbox.io/s/precoil-bsmdd).
 
@@ -29,64 +29,92 @@ npm install precoil
 ```js
 import { atom } from 'precoil'
 
-export const textState = atom()
-export const textStateWithDefault = atom('')
+const textState = atom()
+// textState: Atom<undefined>
+
+const textStateWithDefault = atom('')
+// textStateWithDefault: Atom<string>
 ```
 
 ```ts
-export const textState = atom<string>()
-// textState: string | undefined
+const textState = atom<string>()
+// textState: Atom<string | undefined>
 ```
 
-### useAtom
+### Atom.useState
 
 ```js
-import { useAtom } from 'precoil'
-import { textState } from '../atoms'
+const textState = atom()
 
 const Input = () => {
-  const [text, setText] = useAtom(textState)
+  const [text, setText] = textState.useState()
   return (
     <input
       value={text ?? ''}
-      onChange={e => setValue(e.currentTarget.value)}
+      onChange={e => setText(e.currentTarget.value)}
     />
   )
 }
 
 const UpperCaseInput = () => {
-  const [text] = useAtom(textState)
+  const [text] = textState.useState()
   return <p>Uppercase: {text && text.toUpperCase() || ''}</p>
 }
 ```
 
-## API
+### Atom.useReducer
 
-```ts
-import React from 'react'
+```js
+const countStore = atom({ count: 0 })
 
-declare type SetState<T> = React.Dispatch<React.SetStateAction<T>>
-declare type Subscription<T> = Set<SetState<T>>
+const Counter = () => {
+  const [state, dispatch] = countStore.useReducer((prevState, action) => {
+    switch (action.type) {
+      case 'INCREMENT':
+        return { count: prevState.count + 1 }
+      case 'RESET':
+        return { count: 0 }
+      default:
+        return prevState
+    }
+  })
 
-interface Atom<T> {
-  value: T
-  subscription: Subscription<T>
+  return (
+    <>
+      <span>{state.count}</span>
+      <button onClick={() => dispatch({ type: 'INCREMENT' })}>inc</button>
+      <button onClick={() => dispatch({ type: 'RESET' })}>reset</button>
+    </>
+  )
 }
 
-declare function atom<T>(initialValue: T): Atom<T>
-declare function atom<T>(initialValue?: T): Atom<T | undefined>
-
-declare function useAtom<T>(atom: Atom<T>): [T, SetState<T>]
-declare function useAtom<T>(
-  atom: Atom<T | undefined>
-): [T | undefined, SetState<T | undefined>]
-
-export { atom, useAtom }
+const MirrorCounter = () => {
+  const [state] = countStore.useState()
+  return <span>{state.count}</span>
+}
 ```
 
-## Todo
+### Atom.subscribe
 
-- [ ] Document
+```js
+const countStore = atom({ count: 0 })
+
+const unsubscribe = countStore.subscribe(state => {
+  console.log(`State has been changed to { count: ${state.count} }`)
+})
+
+// At some point
+unsubscribe()
+```
+
+### Atom.destroy
+
+```js
+const countStore = atom({ count: 0 })
+
+// Remove all listeners
+countStore.destroy()
+```
 
 ## License
 
