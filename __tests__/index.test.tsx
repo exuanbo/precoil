@@ -1,35 +1,43 @@
 import React, { FunctionComponent } from 'react'
 import { render as rtlRender, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { atom, useAtom } from '../src/index'
+import { atom, useAtom, useAtomReducer } from '../src/index'
 
-const input = atom<string>()
-const numberInput = atom(0)
-const inputWithDefault = atom('I am a default value')
+const textState = atom<string>()
+const numberStore = atom({ number: 0 })
+const textStateWithDefault = atom('I am a default value')
 
 const Input: FunctionComponent = () => {
-  const [value, setValue] = useAtom(input)
+  const [text, setText] = useAtom(textState)
   return (
     <input
       aria-label="input"
-      value={value ?? ''}
-      onChange={e => setValue(e.currentTarget.value)}
+      value={text ?? ''}
+      onChange={e => setText(e.currentTarget.value)}
     />
   )
 }
 
 const MirrorInput: FunctionComponent = () => {
-  const [value] = useAtom(input)
-  return <span data-testid="mirror-input">{value ?? ''}</span>
+  const [text] = useAtom(textState)
+  return <span data-testid="mirror-input">{text ?? ''}</span>
 }
 
 const UpperCaseInput: FunctionComponent = () => {
-  const [value] = useAtom(input)
-  return <span data-testid="uppercase-input">{value?.toUpperCase() ?? ''}</span>
+  const [text] = useAtom(textState)
+  return <span data-testid="uppercase-input">{text?.toUpperCase() ?? ''}</span>
 }
 
 const ComputedInput: FunctionComponent = () => {
-  const [value, setValue] = useAtom(numberInput)
+  const [{ number }, setNumberStore] = useAtom(numberStore)
+  const dispatch = useAtomReducer((state, action) => {
+    switch (action.type) {
+      case 'increment':
+        return { number: state.number + 1 }
+      default:
+        return state
+    }
+  }, numberStore)[1]
   const getNumber = (value: number | string): number => {
     const parsedNumber = Number(value)
     if (isNaN(parsedNumber)) {
@@ -42,21 +50,29 @@ const ComputedInput: FunctionComponent = () => {
       <input
         aria-label="number-input"
         onChange={e =>
-          setValue(prevValue => prevValue + getNumber(e.target.value))
+          setNumberStore(({ number }) => ({
+            number: number + getNumber(e.target.value)
+          }))
         }
       />
-      <span data-testid="computed-input">{value}</span>
+      <span data-testid="computed-input">{number}</span>
+      <button data-testid="inc" onClick={() => dispatch({ type: 'increment' })}>
+        inc
+      </button>
+      <button data-testid="reset" onClick={() => setNumberStore({ number: 0 })}>
+        reset
+      </button>
     </>
   )
 }
 
 const InputWithDefault: FunctionComponent = () => {
-  const [value, setValue] = useAtom(inputWithDefault)
+  const [text, setText] = useAtom(textStateWithDefault)
   return (
     <input
       aria-label="input-with-default"
-      value={value}
-      onChange={e => setValue(e.currentTarget.value)}
+      value={text}
+      onChange={e => setText(e.currentTarget.value)}
     />
   )
 }
@@ -77,6 +93,8 @@ interface Setup {
   upperCaseInput: HTMLElement
   numberInput: HTMLInputElement
   computedInput: HTMLElement
+  incBtn: HTMLElement
+  resetBtn: HTMLElement
   inputWithDefault: HTMLInputElement
 }
 
@@ -87,6 +105,8 @@ const setup = (): Setup => {
   const upperCaseInput = screen.getByTestId('uppercase-input')
   const numberInput = screen.getByLabelText('number-input') as HTMLInputElement
   const computedInput = screen.getByTestId('computed-input')
+  const incBtn = screen.getByTestId('inc')
+  const resetBtn = screen.getByTestId('reset')
   const inputWithDefault = screen.getByLabelText(
     'input-with-default'
   ) as HTMLInputElement
@@ -96,6 +116,8 @@ const setup = (): Setup => {
     upperCaseInput,
     numberInput,
     computedInput,
+    incBtn,
+    resetBtn,
     inputWithDefault
   }
 }
@@ -116,6 +138,21 @@ it('should work when setState accepts a function', () => {
   expect(computedInput).toHaveTextContent('1')
   fireEvent.change(numberInput, { target: { value: '2' } })
   expect(computedInput).toHaveTextContent('3')
+})
+
+it('should work when setState accepts a function', () => {
+  const { numberInput, computedInput, incBtn, resetBtn } = setup()
+  expect(computedInput).toHaveTextContent('3')
+  fireEvent.change(numberInput, { target: { value: '1' } })
+  expect(computedInput).toHaveTextContent('4')
+  fireEvent.click(incBtn)
+  expect(computedInput).toHaveTextContent('5')
+  fireEvent.change(numberInput, { target: { value: '2' } })
+  expect(computedInput).toHaveTextContent('7')
+  fireEvent.click(incBtn)
+  expect(computedInput).toHaveTextContent('8')
+  fireEvent.click(resetBtn)
+  expect(computedInput).toHaveTextContent('0')
 })
 
 it('should work with default value', () => {
