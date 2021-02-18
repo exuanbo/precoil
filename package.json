@@ -1,7 +1,7 @@
 {
   "name": "precoil",
   "version": "0.2.0",
-  "description": "A minimal state management library for React. Hmm, it's like Recoil.",
+  "description": "A minimal state management library for React.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
