@@ -32,6 +32,16 @@ interface Atom<T> {
   destroy: () => void
 }
 
+const subscribHook = <T>(
+  hookAction: SetState<T> | Dispatch<T>,
+  hookSubscription: SetStateSubscription<T> | DispatchSubscription<T>
+): Unsubscribe => {
+  hookSubscription.add(hookAction)
+  return () => {
+    hookSubscription.delete(hookAction)
+  }
+}
+
 export function atom<T>(initialState: T): Atom<T>
 export function atom<T>(initialState?: T): Atom<T | undefined>
 
@@ -51,16 +61,6 @@ export function atom<T>(initialState: T): Atom<T> {
     callbackSubscription.forEach(fn => {
       fn(state)
     })
-  }
-
-  const subscribHook = <T>(
-    hookAction: SetState<T> | Dispatch<T>,
-    hookSubscription: SetStateSubscription<T> | DispatchSubscription<T>
-  ): Unsubscribe => {
-    hookSubscription.add(hookAction)
-    return () => {
-      hookSubscription.delete(hookAction)
-    }
   }
 
   const setStateSubscription: SetStateSubscription<T> = new Set()
