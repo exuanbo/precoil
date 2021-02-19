@@ -66,7 +66,7 @@ export function atom<T>(initialState: T): Atom<T> {
   const setStateSubscription: SetStateSubscription<T> = new Set()
 
   const useAtomState: UseAtomState<T> = () => {
-    const [_state, setState] = useState(state)
+    const [currentState, setState] = useState(state)
 
     useEffect(() => subscribHook(setState, setStateSubscription), [])
 
@@ -87,7 +87,7 @@ export function atom<T>(initialState: T): Atom<T> {
       publishCallback()
     }
 
-    return [_state, publishState]
+    return [currentState, publishState]
   }
 
   const dispatchSubscription: DispatchSubscription<T> = new Set()
@@ -98,7 +98,7 @@ export function atom<T>(initialState: T): Atom<T> {
         ? action.newAtomState
         : reducer(prevState, action)
 
-    const [_state, dispatch] = useReducer(reducerWrapper, state)
+    const [currentState, dispatch] = useReducer(reducerWrapper, state)
 
     useEffect(() => subscribHook(dispatch, dispatchSubscription), [])
 
@@ -118,7 +118,7 @@ export function atom<T>(initialState: T): Atom<T> {
       publishCallback()
     }
 
-    return [_state, dispatchAction]
+    return [currentState, dispatchAction]
   }
 
   const destroy = (): void => {
