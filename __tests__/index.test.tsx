@@ -171,7 +171,7 @@ it('should work with `atom.useReducer`', () => {
   fireEvent.click(resetBtn)
   expect(counter).toHaveTextContent('0')
 
-  countStore.distroy()
+  countStore.destroy()
 
   fireEvent.click(incBtn)
   expect(counter).toHaveTextContent('0')
