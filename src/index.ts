@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useReducer } from 'react'
 
 type Callback<T> = ((state: T) => void) | (() => void)
+type CallbackSubscription<T> = Set<Callback<T>>
+type Unsubscribe = () => void
+type Subscribe<T> = (cb: Callback<T>) => Unsubscribe
+
 type DispatchSetStateAction<T> = React.Dispatch<React.SetStateAction<T>>
+type DispatchSetStateActionSubscription<T> = Set<DispatchSetStateAction<T>>
+type UseAtomState<T> = () => [T, DispatchSetStateAction<T>]
+
 type DispatchReducerAction<T> = React.Dispatch<
   React.ReducerAction<React.Reducer<T, any>>
 >
-
-type CallbackSubscription<T> = Set<Callback<T>>
-type DispatchSetStateActionSubscription<T> = Set<DispatchSetStateAction<T>>
 type DispatchReducerActionSubscription<T> = Set<DispatchReducerAction<T>>
-
-type Unsubscribe = () => void
 
 interface ReducerAction {
   type: string
@@ -21,13 +23,12 @@ interface ReducerActionWrapper<T> extends ReducerAction {
   newAtomState?: T
 }
 
-type UseAtomState<T> = () => [T, DispatchSetStateAction<T>]
 type UseAtomReducer<T> = (
   reducer: React.Reducer<T, ReducerAction>
 ) => [T, DispatchReducerAction<T>]
 
 interface Atom<T> {
-  subscribe: (cb: Callback<T>) => Unsubscribe
+  subscribe: Subscribe<T>
   useState: UseAtomState<T>
   useReducer: UseAtomReducer<T>
   destroy: () => void
@@ -41,14 +42,14 @@ export function atom<T>(initialState: T): Atom<T> {
 
   const callbackSubscription: CallbackSubscription<T> = new Set()
 
-  const subscribe = (cb: Callback<T>): Unsubscribe => {
+  const subscribe: Subscribe<T> = cb => {
     callbackSubscription.add(cb)
     return () => {
       callbackSubscription.delete(cb)
     }
   }
 
-  const callback = (): void => {
+  const publishCallback = (): void => {
     callbackSubscription.forEach(fn => {
       fn(state)
     })
@@ -87,7 +88,7 @@ export function atom<T>(initialState: T): Atom<T> {
 
       state = newStateValue
 
-      callback()
+      publishCallback()
     }
 
     return [_state, publishState]
@@ -118,7 +119,7 @@ export function atom<T>(initialState: T): Atom<T> {
 
       state = newState
 
-      callback()
+      publishCallback()
     }
 
     return [_state, dispatchAction]
