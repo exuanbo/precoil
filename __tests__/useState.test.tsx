@@ -1,19 +1,15 @@
-import React, { FunctionComponent } from 'react'
+import React from 'react'
 import { render as rtlRender, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { atom } from '../src'
 
 const textState = atom<string>()
 
-const countStore = atom({ count: 0 })
-
-const unsubscribe = countStore.subscribe(state => {
-  console.log(`State has been changed to ${state.count}.`)
-})
-
 const textStateWithDefault = atom('I am a default value')
 
-const Input: FunctionComponent = () => {
+const countStore = atom({ count: 0 })
+
+const Input: React.FC = () => {
   const [text, setText] = textState.useState()
   return (
     <input
@@ -24,17 +20,17 @@ const Input: FunctionComponent = () => {
   )
 }
 
-const MirrorInput: FunctionComponent = () => {
+const MirrorInput: React.FC = () => {
   const [text] = textState.useState()
   return <span data-testid="mirror-input">{text ?? ''}</span>
 }
 
-const UpperCaseInput: FunctionComponent = () => {
+const UpperCaseInput: React.FC = () => {
   const [text] = textState.useState()
   return <span data-testid="uppercase-input">{text?.toUpperCase() ?? ''}</span>
 }
 
-const InputWithDefault: FunctionComponent = () => {
+const InputWithDefault: React.FC = () => {
   const [text, setText] = textStateWithDefault.useState()
   return (
     <input
@@ -45,51 +41,40 @@ const InputWithDefault: FunctionComponent = () => {
   )
 }
 
-const Counter: FunctionComponent = () => {
+const Counter: React.FC = () => {
   const [state, setState] = countStore.useState()
-  const [, dispatch] = countStore.useReducer((state, action) => {
-    switch (action.type) {
-      case 'INCREMENT':
-        return { count: state.count + 1 }
-      default:
-        return state
-    }
-  })
-  const getNumber = (value: number | string): number => {
-    const parsedNumber = Number(value)
-    if (isNaN(parsedNumber)) {
-      return 0
-    }
-    return parsedNumber
-  }
+
   return (
     <>
       <input
         aria-label="number-input"
         onChange={e =>
-          setState(({ count }) => ({
-            count: count + getNumber(e.target.value)
+          setState(state => ({
+            count: state.count + Number(e.target.value)
           }))
         }
       />
       <span data-testid="counter">{state.count}</span>
-      <button data-testid="inc" onClick={() => dispatch({ type: 'INCREMENT' })}>
-        inc
-      </button>
-      <button data-testid="reset" onClick={() => setState({ count: 0 })}>
+      <button data-testid="reset-btn" onClick={() => setState({ count: 0 })}>
         reset
       </button>
     </>
   )
 }
 
-const App: FunctionComponent = () => (
+const MirrorCounter: React.FC = () => {
+  const [state] = countStore.useReducer(prevState => prevState)
+  return <span data-testid="mirror-counter">{state.count}</span>
+}
+
+const App: React.FC = () => (
   <>
     <Input />
     <MirrorInput />
     <UpperCaseInput />
     <InputWithDefault />
     <Counter />
+    <MirrorCounter />
   </>
 )
 
@@ -98,10 +83,12 @@ interface Setup {
   mirrorInput: HTMLElement
   upperCaseInput: HTMLElement
   inputWithDefault: HTMLInputElement
+
   counter: HTMLElement
   numberInput: HTMLInputElement
-  incBtn: HTMLElement
   resetBtn: HTMLElement
+
+  mirrorCounter: HTMLElement
 }
 
 const setup = (): Setup => {
@@ -112,10 +99,13 @@ const setup = (): Setup => {
   const inputWithDefault = screen.getByLabelText(
     'input-with-default'
   ) as HTMLInputElement
+
   const counter = screen.getByTestId('counter')
   const numberInput = screen.getByLabelText('number-input') as HTMLInputElement
-  const incBtn = screen.getByTestId('inc')
-  const resetBtn = screen.getByTestId('reset')
+  const resetBtn = screen.getByTestId('reset-btn')
+
+  const mirrorCounter = screen.getByTestId('mirror-counter')
+
   return {
     input,
     mirrorInput,
@@ -123,8 +113,8 @@ const setup = (): Setup => {
     inputWithDefault,
     counter,
     numberInput,
-    incBtn,
-    resetBtn
+    resetBtn,
+    mirrorCounter
   }
 }
 
@@ -148,39 +138,19 @@ it('should work with default value', () => {
 })
 
 it('should work when setState accepts a function', () => {
-  const { numberInput, counter } = setup()
+  const { counter, numberInput, resetBtn, mirrorCounter } = setup()
   expect(counter).toHaveTextContent('0')
+  expect(mirrorCounter).toHaveTextContent('0')
 
   fireEvent.change(numberInput, { target: { value: '1' } })
   expect(counter).toHaveTextContent('1')
+  expect(mirrorCounter).toHaveTextContent('1')
 
   fireEvent.change(numberInput, { target: { value: '2' } })
   expect(counter).toHaveTextContent('3')
-})
-
-it('should work with `atom.useReducer`', () => {
-  const { numberInput, counter, incBtn, resetBtn } = setup()
-  expect(counter).toHaveTextContent('3')
-
-  fireEvent.change(numberInput, { target: { value: '1' } })
-  expect(counter).toHaveTextContent('4')
-
-  fireEvent.click(incBtn)
-  expect(counter).toHaveTextContent('5')
-
-  fireEvent.change(numberInput, { target: { value: '2' } })
-  expect(counter).toHaveTextContent('7')
-
-  fireEvent.click(incBtn)
-  expect(counter).toHaveTextContent('8')
-
-  unsubscribe()
+  expect(mirrorCounter).toHaveTextContent('3')
 
   fireEvent.click(resetBtn)
   expect(counter).toHaveTextContent('0')
-
-  countStore.destroy()
-
-  fireEvent.click(incBtn)
-  expect(counter).toHaveTextContent('0')
+  expect(mirrorCounter).toHaveTextContent('0')
 })
