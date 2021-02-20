@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useReducer } from 'react'
 
-type Callback<T> = ((state: T) => void) | (() => void)
-type CallbackSubscription<T> = Set<Callback<T>>
-type Unsubscribe = () => void
-type Subscribe<T> = (cb: Callback<T>) => Unsubscribe
-
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 type SetStateSubscription<T> = Set<SetState<T>>
 type UseAtomState<T> = () => [T, SetState<T>]
@@ -25,10 +20,15 @@ type UseAtomReducer<T> = (
   reducer: React.Reducer<T, ReducerAction>
 ) => [T, Dispatch<T>]
 
+type Callback<T> = ((state: T) => void) | (() => void)
+type CallbackSubscription<T> = Set<Callback<T>>
+type Unsubscribe = () => void
+type SubscribeCallback<T> = (cb: Callback<T>) => Unsubscribe
+
 interface Atom<T> {
-  subscribe: Subscribe<T>
   useState: UseAtomState<T>
   useReducer: UseAtomReducer<T>
+  subscribe: SubscribeCallback<T>
   destroy: () => void
 }
 
@@ -47,21 +47,6 @@ export function atom<T>(initialState?: T): Atom<T | undefined>
 
 export function atom<T>(initialState: T): Atom<T> {
   let state = initialState
-
-  const callbackSubscription: CallbackSubscription<T> = new Set()
-
-  const subscribe: Subscribe<T> = cb => {
-    callbackSubscription.add(cb)
-    return () => {
-      callbackSubscription.delete(cb)
-    }
-  }
-
-  const publishCallback = (): void => {
-    callbackSubscription.forEach(fn => {
-      fn(state)
-    })
-  }
 
   const setStateSubscription: SetStateSubscription<T> = new Set()
 
@@ -121,6 +106,21 @@ export function atom<T>(initialState: T): Atom<T> {
     return [currentState, dispatchAction]
   }
 
+  const callbackSubscription: CallbackSubscription<T> = new Set()
+
+  const subscribeCallback: SubscribeCallback<T> = cb => {
+    callbackSubscription.add(cb)
+    return () => {
+      callbackSubscription.delete(cb)
+    }
+  }
+
+  const publishCallback = (): void => {
+    callbackSubscription.forEach(fn => {
+      fn(state)
+    })
+  }
+
   const destroy = (): void => {
     callbackSubscription.clear()
     setStateSubscription.clear()
@@ -128,9 +128,9 @@ export function atom<T>(initialState: T): Atom<T> {
   }
 
   return {
-    subscribe,
     useState: useAtomState,
     useReducer: useAtomReducer,
+    subscribe: subscribeCallback,
     destroy
   }
 }
