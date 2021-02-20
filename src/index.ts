@@ -1,24 +1,11 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useEffect, useState } from 'react'
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 type SetStateSubscription<T> = Set<SetState<T>>
 type UseAtomState<T> = () => [T, SetState<T>]
 
 type Dispatch<T> = React.Dispatch<React.ReducerAction<React.Reducer<T, any>>>
-type DispatchSubscription<T> = Set<Dispatch<T>>
-
-interface ReducerAction {
-  [key: string]: unknown
-}
-
-interface ReducerWrapperAction<T> extends ReducerAction {
-  type?: string
-  newAtomState?: T
-}
-
-type UseAtomReducer<T> = (
-  reducer: React.Reducer<T, ReducerAction>
-) => [T, Dispatch<T>]
+type UseAtomReducer<T> = (reducer: React.Reducer<T, any>) => [T, Dispatch<T>]
 
 type Callback<T> = ((state: T) => void) | (() => void)
 type CallbackSubscription<T> = Set<Callback<T>>
@@ -32,14 +19,23 @@ interface Atom<T> {
   destroy: () => void
 }
 
-const subscribHook = <T>(
-  hookAction: SetState<T> | Dispatch<T>,
-  hookSubscription: SetStateSubscription<T> | DispatchSubscription<T>
+const subscribSetState = <T>(
+  setStateSubscription: SetStateSubscription<T>,
+  setState: Dispatch<T>
 ): Unsubscribe => {
-  hookSubscription.add(hookAction)
+  setStateSubscription.add(setState)
   return () => {
-    hookSubscription.delete(hookAction)
+    setStateSubscription.delete(setState)
   }
+}
+
+const publishSetState = <T>(
+  setStateSubscription: SetStateSubscription<T>,
+  newState: T
+): void => {
+  setStateSubscription.forEach(setState => {
+    setState(newState)
+  })
 }
 
 export function atom<T>(initialState: T): Atom<T>
@@ -53,57 +49,28 @@ export function atom<T>(initialState: T): Atom<T> {
   const useAtomState: UseAtomState<T> = () => {
     const [currentState, setState] = useState(state)
 
-    useEffect(() => subscribHook(setState, setStateSubscription), [])
+    useEffect(() => subscribSetState(setStateSubscription, setState), [])
 
     const publishState: SetState<T> = newState => {
-      setStateSubscription.forEach(setState => {
-        setState(newState)
-      })
-
       const newStateValue =
         newState instanceof Function ? newState(state) : newState
-
-      dispatchSubscription.forEach(dispatch => {
-        dispatch({ type: 'UPDATE_ATOM_STATE', newAtomState: newStateValue })
-      })
-
+      publishSetState(setStateSubscription, newStateValue)
       state = newStateValue
-
       publishCallback()
     }
 
     return [currentState, publishState]
   }
 
-  const dispatchSubscription: DispatchSubscription<T> = new Set()
-
   const useAtomReducer: UseAtomReducer<T> = reducer => {
-    const reducerWrapper = (prevState: T, action: ReducerWrapperAction<T>): T =>
-      action.type === 'UPDATE_ATOM_STATE' && action.newAtomState !== undefined
-        ? action.newAtomState
-        : reducer(prevState, action)
+    const [currentState, publishState] = useAtomState()
 
-    const [currentState, dispatch] = useReducer(reducerWrapper, state)
-
-    useEffect(() => subscribHook(dispatch, dispatchSubscription), [])
-
-    const dispatchAction: Dispatch<T> = action => {
-      dispatchSubscription.forEach(dispatch => {
-        dispatch(action)
-      })
-
+    const dispatch: Dispatch<T> = action => {
       const newState = reducer(state, action)
-
-      setStateSubscription.forEach(setState => {
-        setState(newState)
-      })
-
-      state = newState
-
-      publishCallback()
+      publishState(newState)
     }
 
-    return [currentState, dispatchAction]
+    return [currentState, dispatch]
   }
 
   const callbackSubscription: CallbackSubscription<T> = new Set()
@@ -122,9 +89,8 @@ export function atom<T>(initialState: T): Atom<T> {
   }
 
   const destroy = (): void => {
-    callbackSubscription.clear()
     setStateSubscription.clear()
-    dispatchSubscription.clear()
+    callbackSubscription.clear()
   }
 
   return {
