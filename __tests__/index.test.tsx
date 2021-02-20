@@ -34,16 +34,27 @@ const UpperCaseInput: FunctionComponent = () => {
   return <span data-testid="uppercase-input">{text?.toUpperCase() ?? ''}</span>
 }
 
+const InputWithDefault: FunctionComponent = () => {
+  const [text, setText] = textStateWithDefault.useState()
+  return (
+    <input
+      aria-label="input-with-default"
+      value={text}
+      onChange={e => setText(e.currentTarget.value)}
+    />
+  )
+}
+
 const Counter: FunctionComponent = () => {
   const [state, setState] = countStore.useState()
-  const dispatch = countStore.useReducer((state, action) => {
+  const [, dispatch] = countStore.useReducer((state, action) => {
     switch (action.type) {
       case 'INCREMENT':
         return { count: state.count + 1 }
       default:
         return state
     }
-  })[1]
+  })
   const getNumber = (value: number | string): number => {
     const parsedNumber = Number(value)
     if (isNaN(parsedNumber)) {
@@ -72,24 +83,13 @@ const Counter: FunctionComponent = () => {
   )
 }
 
-const InputWithDefault: FunctionComponent = () => {
-  const [text, setText] = textStateWithDefault.useState()
-  return (
-    <input
-      aria-label="input-with-default"
-      value={text}
-      onChange={e => setText(e.currentTarget.value)}
-    />
-  )
-}
-
 const App: FunctionComponent = () => (
   <>
     <Input />
     <MirrorInput />
     <UpperCaseInput />
-    <Counter />
     <InputWithDefault />
+    <Counter />
   </>
 )
 
@@ -97,11 +97,11 @@ interface Setup {
   input: HTMLInputElement
   mirrorInput: HTMLElement
   upperCaseInput: HTMLElement
-  numberInput: HTMLInputElement
+  inputWithDefault: HTMLInputElement
   counter: HTMLElement
+  numberInput: HTMLInputElement
   incBtn: HTMLElement
   resetBtn: HTMLElement
-  inputWithDefault: HTMLInputElement
 }
 
 const setup = (): Setup => {
@@ -109,22 +109,22 @@ const setup = (): Setup => {
   const input = screen.getByLabelText('input') as HTMLInputElement
   const mirrorInput = screen.getByTestId('mirror-input')
   const upperCaseInput = screen.getByTestId('uppercase-input')
-  const numberInput = screen.getByLabelText('number-input') as HTMLInputElement
-  const counter = screen.getByTestId('counter')
-  const incBtn = screen.getByTestId('inc')
-  const resetBtn = screen.getByTestId('reset')
   const inputWithDefault = screen.getByLabelText(
     'input-with-default'
   ) as HTMLInputElement
+  const counter = screen.getByTestId('counter')
+  const numberInput = screen.getByLabelText('number-input') as HTMLInputElement
+  const incBtn = screen.getByTestId('inc')
+  const resetBtn = screen.getByTestId('reset')
   return {
     input,
     mirrorInput,
     upperCaseInput,
-    numberInput,
+    inputWithDefault,
     counter,
+    numberInput,
     incBtn,
-    resetBtn,
-    inputWithDefault
+    resetBtn
   }
 }
 
@@ -137,6 +137,14 @@ it('should work', () => {
 
   expect(mirrorInput).toHaveTextContent('hi')
   expect(upperCaseInput).toHaveTextContent('HI')
+})
+
+it('should work with default value', () => {
+  const { inputWithDefault } = setup()
+  expect(inputWithDefault.value).toBe('I am a default value')
+
+  fireEvent.change(inputWithDefault, { target: { value: 'Now I am changed' } })
+  expect(inputWithDefault.value).toBe('Now I am changed')
 })
 
 it('should work when setState accepts a function', () => {
@@ -175,12 +183,4 @@ it('should work with `atom.useReducer`', () => {
 
   fireEvent.click(incBtn)
   expect(counter).toHaveTextContent('0')
-})
-
-it('should work with default value', () => {
-  const { inputWithDefault } = setup()
-  expect(inputWithDefault.value).toBe('I am a default value')
-
-  fireEvent.change(inputWithDefault, { target: { value: 'Now I am changed' } })
-  expect(inputWithDefault.value).toBe('Now I am changed')
 })
