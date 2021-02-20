@@ -13,11 +13,11 @@ type Dispatch<T> = React.Dispatch<React.ReducerAction<React.Reducer<T, any>>>
 type DispatchSubscription<T> = Set<Dispatch<T>>
 
 interface ReducerAction {
-  type: string
   [key: string]: unknown
 }
 
-interface ReducerActionWrapper<T> extends ReducerAction {
+interface ReducerWrapperAction<T> extends ReducerAction {
+  type?: string
   newAtomState?: T
 }
 
@@ -93,7 +93,7 @@ export function atom<T>(initialState: T): Atom<T> {
   const dispatchSubscription: DispatchSubscription<T> = new Set()
 
   const useAtomReducer: UseAtomReducer<T> = reducer => {
-    const reducerWrapper = (prevState: T, action: ReducerActionWrapper<T>): T =>
+    const reducerWrapper = (prevState: T, action: ReducerWrapperAction<T>): T =>
       action.type === 'UPDATE_ATOM_STATE' && action.newAtomState !== undefined
         ? action.newAtomState
         : reducer(prevState, action)
