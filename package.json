@@ -1,6 +1,6 @@
 {
   "name": "precoil",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "A minimal state management library for React.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
