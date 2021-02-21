@@ -118,4 +118,4 @@ countStore.destroy()
 
 ## License
 
-[MIT License](https://github.com/exuanbo/precoil/blob/main/LICENSE) © 2020 [Exuanbo](https://github.com/exuanbo)
+[MIT License](https://github.com/exuanbo/precoil/blob/main/LICENSE) © 2021 [Exuanbo](https://github.com/exuanbo)
