@@ -12,30 +12,31 @@ type CallbackSubscription<T> = Set<Callback<T>>
 type Unsubscribe = () => void
 type SubscribeCallback<T> = (cb: Callback<T>) => Unsubscribe
 
-interface Atom<T> {
-  useState: UseAtomState<T>
-  useReducer: UseAtomReducer<T>
-  subscribe: SubscribeCallback<T>
-  destroy: () => void
-}
-
-const subscribSetState = <T>(
+function subscrib<T>(
   setStateSubscription: SetStateSubscription<T>,
-  setState: Dispatch<T>
-): Unsubscribe => {
+  setState: SetState<T>
+): Unsubscribe
+
+function subscrib<T>(
+  callbackSubscription: CallbackSubscription<T>,
+  cb: Callback<T>
+): Unsubscribe
+
+function subscrib<T>(
+  setStateSubscription: SetStateSubscription<T>,
+  setState: SetState<T>
+): Unsubscribe {
   setStateSubscription.add(setState)
   return () => {
     setStateSubscription.delete(setState)
   }
 }
 
-const publishSetState = <T>(
-  setStateSubscription: SetStateSubscription<T>,
-  newState: T
-): void => {
-  setStateSubscription.forEach(setState => {
-    setState(newState)
-  })
+interface Atom<T> {
+  useState: UseAtomState<T>
+  useReducer: UseAtomReducer<T>
+  subscribe: SubscribeCallback<T>
+  destroy: () => void
 }
 
 export function atom<T>(initialState: T): Atom<T>
@@ -49,12 +50,16 @@ export function atom<T>(initialState: T): Atom<T> {
   const useAtomState: UseAtomState<T> = () => {
     const [currentState, setState] = useState(state)
 
-    useEffect(() => subscribSetState(setStateSubscription, setState), [])
+    useEffect(() => subscrib(setStateSubscription, setState), [])
 
     const publishState: SetState<T> = newState => {
       const newStateValue =
         newState instanceof Function ? newState(state) : newState
-      publishSetState(setStateSubscription, newStateValue)
+
+      setStateSubscription.forEach(setState => {
+        setState(newState)
+      })
+
       state = newStateValue
       publishCallback()
     }
@@ -75,12 +80,8 @@ export function atom<T>(initialState: T): Atom<T> {
 
   const callbackSubscription: CallbackSubscription<T> = new Set()
 
-  const subscribeCallback: SubscribeCallback<T> = cb => {
-    callbackSubscription.add(cb)
-    return () => {
-      callbackSubscription.delete(cb)
-    }
-  }
+  const subscribeCallback: SubscribeCallback<T> = cb =>
+    subscrib(callbackSubscription, cb)
 
   const publishCallback = (): void => {
     callbackSubscription.forEach(fn => {
