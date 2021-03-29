@@ -4,8 +4,10 @@ type SetState<T> = React.Dispatch<React.SetStateAction<T>>
 type SetStateSubscription<T> = Set<SetState<T>>
 type UseAtomState<T> = () => [T, SetState<T>]
 
-type Dispatch<T> = React.Dispatch<React.ReducerAction<React.Reducer<T, any>>>
-type UseAtomReducer<T> = (reducer: React.Reducer<T, any>) => [T, Dispatch<T>]
+type Dispatch<T, A> = React.Dispatch<React.ReducerAction<React.Reducer<T, A>>>
+type UseAtomReducer<T> = <A>(
+  reducer: React.Reducer<T, A>
+) => [T, Dispatch<T, A>]
 
 type Callback<T> = ((state: T) => void) | (() => void)
 type CallbackSubscription<T> = Set<Callback<T>>
@@ -70,7 +72,10 @@ export function atom<T>(initialState: T): Atom<T> {
   const useAtomReducer: UseAtomReducer<T> = reducer => {
     const [currentState, publishState] = useAtomState()
 
-    const dispatch: Dispatch<T> = action => {
+    const dispatch: Dispatch<
+      T,
+      React.ReducerAction<typeof reducer>
+    > = action => {
       const newState = reducer(state, action)
       publishState(newState)
     }
